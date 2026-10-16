@@ -1,0 +1,28 @@
+// Scenario 2: configure the job as "Pipeline script from SCM" with a local
+// file:/// Git repository and Script Path = jenkins/scenario-2/Jenkinsfile.
+pipeline {
+    agent { label 'local' }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // The Pipeline-from-SCM checkout happens before this Jenkinsfile
+                // runs; this stage makes the checkout visible in Stage View.
+                checkout scm
+            }
+        }
+        stage('Build Images') {
+            steps { bat 'docker compose build' }
+        }
+        stage('Run Tests') {
+            steps { bat 'docker compose run --rm webapp pytest -q' }
+        }
+        stage('Deploy Containers') {
+            steps { bat 'docker compose up -d' }
+        }
+    }
+
+    post {
+        always { bat 'docker compose ps' }
+    }
+}

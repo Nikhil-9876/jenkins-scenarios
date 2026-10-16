@@ -1,0 +1,24 @@
+// Scenario 3: configure the job as "Pipeline script from SCM" with the
+// GitHub repository URL and Script Path = jenkins/scenario-3/Jenkinsfile.
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps { checkout scm }
+        }
+        stage('Build Images') {
+            steps { bat 'docker compose build' }
+        }
+        stage('Run Tests') {
+            steps { bat 'docker compose run --rm webapp pytest -q' }
+        }
+        stage('Deploy Containers') {
+            steps { bat 'docker compose up -d' }
+        }
+    }
+
+    post {
+        always { bat 'docker compose ps' }
+    }
+}

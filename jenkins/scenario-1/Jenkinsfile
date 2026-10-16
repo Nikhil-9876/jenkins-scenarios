@@ -1,0 +1,29 @@
+// Scenario 1: the job uses a Pipeline script and points at a plain local folder.
+// Define LOCAL_PROJECT_PATH as a job parameter or environment variable.
+pipeline {
+    agent {
+        node {
+            label 'local'
+            customWorkspace "${env.LOCAL_PROJECT_PATH ?: 'D:/path/to/jenkins-scenarios'}"
+        }
+    }
+
+    stages {
+        stage('Show Workspace') {
+            steps { bat 'cd' }
+        }
+        stage('Build Images') {
+            steps { bat 'docker compose build' }
+        }
+        stage('Run Tests') {
+            steps { bat 'docker compose run --rm webapp pytest -q' }
+        }
+        stage('Deploy Containers') {
+            steps { bat 'docker compose up -d' }
+        }
+    }
+
+    post {
+        always { bat 'docker compose ps' }
+    }
+}

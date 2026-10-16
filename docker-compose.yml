@@ -1,0 +1,6 @@
+services:
+  webapp:
+    image: jenkins-scenarios-webapp:latest
+    build: .
+    ports:
+      - "8000:8000"
